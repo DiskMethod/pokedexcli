@@ -36,19 +36,14 @@ func (c *Cache) reapLoop(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	for {
 		<-ticker.C
-		c.cleanup(interval)
-	}
-}
-
-func (c *Cache) cleanup(interval time.Duration) {
-	c.Lock()
-	defer c.Unlock()
-
-	now := time.Now()
-	for key, val := range c.Cache {
-		if now.Sub(val.createdAt) > interval {
-			delete(c.Cache, key)
+		c.Lock()
+		now := time.Now()
+		for key, val := range c.Cache {
+			if now.Sub(val.createdAt) > interval {
+				delete(c.Cache, key)
+			}
 		}
+		c.Unlock()
 	}
 }
 
