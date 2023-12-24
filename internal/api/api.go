@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"local/pokedexcli/internal/pokecache"
 	"net/http"
+	"time"
 )
 
 type Response struct {
@@ -20,17 +22,22 @@ type Response struct {
 
 var currentLocationAreasURL string = "https://pokeapi.co/api/v2/location-area/"
 var previousLocationAreasURL *string
+var cache *pokecache.Cache = pokecache.NewCache(5 * time.Second)
 
 func fetchJSON(url string, v interface{}) error {
-	res, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return err
+	body, ok := cache.Get(url)
+	if !ok {
+		res, err := http.Get(url)
+		if err != nil {
+			return err
+		}
+		defer res.Body.Close()
+	
+		body, err = io.ReadAll(res.Body)
+		if err != nil {
+			return err
+		}
+		cache.Set(url, body)
 	}
 
 	return json.Unmarshal(body, v)
