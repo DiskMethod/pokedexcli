@@ -52,6 +52,7 @@ func CommandExplore(args []string) error {
 	case argsLength == 0:
 		return errors.New("you didn't specify a location. Usage: explore [location-area]")
 	case argsLength == 1:
+		fmt.Printf("Exploring %s...\n", args[0])
 		locationArea := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s", args[0])
 		jsonData := locationResponse{}
 		err := fetchJSON(locationArea, &jsonData)
@@ -59,8 +60,9 @@ func CommandExplore(args []string) error {
 			return err
 		}
 
+		fmt.Println("Found Pokemon:")
 		for _, encounter := range jsonData.PokemonEncounters {
-			fmt.Println(encounter.Pokemon.Name)
+			fmt.Println("-", encounter.Pokemon.Name)
 		}
 
 		return nil
