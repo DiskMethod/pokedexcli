@@ -39,6 +39,23 @@ func Add(name string, pokemon responses.PokemonResponse) error {
         return errors.New("pokedex is not created")
     }
     pdex[name] = pokemon
-		
+
     return nil
+}
+
+func List() ([]string, error) {
+	if pdex == nil {
+		return nil, errors.New("pokedex is not created")
+	}
+
+	keys := []string{}
+	for key := range pdex {
+		keys = append(keys, key)
+	}
+
+	if len(keys) == 0 {
+		return nil, errors.New("your pokedex is empty")
+	}
+
+	return keys, nil
 }
