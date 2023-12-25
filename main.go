@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"local/pokedexcli/internal/api"
+	"local/pokedexcli/internal/pokedex"
 	"os"
 	"strings"
 )
@@ -43,6 +44,16 @@ func init() {
 			description: "Displays the pokemon within a location",
 			callback: api.CommandExplore,
 		},
+		"catch": {
+			name: "catch",
+			description: "Attempts to catch pokemon",
+			callback: api.CommandCatch,
+		},
+		"inspect": {
+			name: "inspect",
+			description: "Inspects a pokemon in your pokedex",
+			callback: commandInspect,
+		},
 	}
 }
 
@@ -63,7 +74,28 @@ func commandExit([]string) error {
 	return nil
 }
 
+func commandInspect(args []string) error {
+	pokemon, err := pokedex.Get(args[0])
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Name:", pokemon.Name)
+	fmt.Println("Weight:", pokemon.Weight)
+	fmt.Println("Stats:")
+	for _, s := range pokemon.Stats {
+		fmt.Printf("  - %s: %v\n", s.Stat.Name, s.BaseStat)
+	}
+	fmt.Println("Types:")
+	for _, t := range pokemon.Types {
+		fmt.Printf("  - %s\n", t.Type.Name)
+	}
+
+	return nil
+}
+
 func main() {
+	pokedex.NewPokedex()
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Printf("pokedex > ")

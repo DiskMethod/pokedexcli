@@ -3,13 +3,18 @@ package api
 import (
 	"errors"
 	"fmt"
+	"local/pokedexcli/internal/pokedex"
+	"local/pokedexcli/internal/responses"
+	"math"
+	"math/rand"
+	"time"
 )
 
 var currentLocationAreasURL string = "https://pokeapi.co/api/v2/location-area/"
 var previousLocationAreasURL *string
 
 func CommandMap([]string) error {
-	jsonData := response{}
+	jsonData := responses.Response{}
 	err := fetchJSON(currentLocationAreasURL, &jsonData)
 	if err != nil {
 		return err
@@ -30,7 +35,7 @@ func CommandMapb([]string) error {
 		return errors.New("there are no previous map locations")
 	}
 
-	jsonData := response{}
+	jsonData := responses.Response{}
 	err := fetchJSON(*previousLocationAreasURL, &jsonData)
 	if err != nil {
 		return err
@@ -54,7 +59,7 @@ func CommandExplore(args []string) error {
 	case argsLength == 1:
 		fmt.Printf("Exploring %s...\n", args[0])
 		locationArea := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s", args[0])
-		jsonData := locationResponse{}
+		jsonData := responses.LocationResponse{}
 		err := fetchJSON(locationArea, &jsonData)
 		if err != nil {
 			return err
@@ -67,6 +72,46 @@ func CommandExplore(args []string) error {
 
 		return nil
 	default:
-		return errors.New("incorrect usage. Example: explore [location-area]")
+		return errors.New("incorrect usage. Usage: explore [location-area]")
 	} 
+}
+
+func CommandCatch(args []string) error {
+	argsLength := len(args)
+	switch {
+	case argsLength == 0:
+		return errors.New("you didn't specify a pokemon. Usage: catch [pokemon-name]")
+	case argsLength == 1:
+		_, err := pokedex.Get(args[0])
+		if err == nil {
+			return errors.New("you've already caught this pokemon")
+		}
+		pokemon := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s", args[0])
+		jsonData := responses.PokemonResponse{}
+		err = fetchJSON(pokemon, &jsonData)
+		if err != nil {
+			return err
+		}
+		
+		const C float64 = 1000.0
+		probability := math.Min(100.0, C / (float64(jsonData.BaseExperience) + 1))
+		caught := float64(rand.Intn(100)) < probability
+
+		fmt.Printf("Throwing a Pokeball at %s", args[0])
+		for i := 0; i < 3; i += 1 {
+			time.Sleep(time.Second)
+			fmt.Printf(".")
+		}
+		if !caught {
+			fmt.Printf("\n%s escaped!\n", args[0])
+			return nil
+		}
+
+		fmt.Printf("\n%s was caught!\n", args[0])
+		pokedex.Add(args[0], jsonData)
+
+		return nil
+	default:
+		return errors.New("incorrect usage. Usage: catch [pokemon-name]")
+	}
 }

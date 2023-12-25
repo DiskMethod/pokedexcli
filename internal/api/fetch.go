@@ -19,7 +19,7 @@ func fetchJSON(url string, v interface{}) error {
 			return err
 		}
 		if res.StatusCode == 404 {
-			return errors.New("invalid location")
+			return errors.New("invalid argument")
 		}
 		defer res.Body.Close()
 	
