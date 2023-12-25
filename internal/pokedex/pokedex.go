@@ -2,8 +2,9 @@ package pokedex
 
 import (
 	"errors"
-	"local/pokedexcli/internal/responses"
 	"sync"
+
+	"github.com/DiskMethod/pokedexcli/internal/responses"
 )
 
 var (

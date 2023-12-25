@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"local/pokedexcli/internal/api"
-	"local/pokedexcli/internal/pokedex"
 	"os"
 	"strings"
+
+	"github.com/DiskMethod/pokedexcli/internal/api"
+	"github.com/DiskMethod/pokedexcli/internal/pokedex"
 )
 
 type cliCommand struct {

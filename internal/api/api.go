@@ -3,11 +3,12 @@ package api
 import (
 	"errors"
 	"fmt"
-	"local/pokedexcli/internal/pokedex"
-	"local/pokedexcli/internal/responses"
 	"math"
 	"math/rand"
 	"time"
+
+	"github.com/DiskMethod/pokedexcli/internal/pokedex"
+	"github.com/DiskMethod/pokedexcli/internal/responses"
 )
 
 var currentLocationAreasURL string = "https://pokeapi.co/api/v2/location-area/"

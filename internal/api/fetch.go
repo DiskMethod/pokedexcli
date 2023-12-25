@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"local/pokedexcli/internal/pokecache"
 	"net/http"
 	"time"
+
+	"github.com/DiskMethod/pokedexcli/internal/pokecache"
 )
 
 var cache *pokecache.Cache = pokecache.NewCache(5 * time.Second)
