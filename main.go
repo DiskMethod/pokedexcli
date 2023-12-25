@@ -38,10 +38,15 @@ func init() {
 			description: "Displays the previous 20 locations.",
 			callback: api.CommandMapb,
 		},
+		"explore": {
+			name: "explore",
+			description: "Displays the pokemon within a location",
+			callback: api.CommandExplore,
+		},
 	}
 }
 
-func commandHelp(args []string) error {
+func commandHelp([]string) error {
 	fmt.Println()
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
@@ -53,7 +58,7 @@ func commandHelp(args []string) error {
 	return nil
 }
 
-func commandExit(args []string) error {
+func commandExit([]string) error {
 	os.Exit(0)
 	return nil
 }

@@ -1,50 +1,15 @@
 package api
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"local/pokedexcli/internal/pokecache"
-	"net/http"
-	"time"
 )
-
-type Response struct {
-	Count    int    `json:"count"`
-	Next     string `json:"next"`
-	Previous *string    `json:"previous"`
-	Results  []struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"results"`
-}
 
 var currentLocationAreasURL string = "https://pokeapi.co/api/v2/location-area/"
 var previousLocationAreasURL *string
-var cache *pokecache.Cache = pokecache.NewCache(5 * time.Second)
-
-func fetchJSON(url string, v interface{}) error {
-	body, ok := cache.Get(url)
-	if !ok {
-		res, err := http.Get(url)
-		if err != nil {
-			return err
-		}
-		defer res.Body.Close()
-	
-		body, err = io.ReadAll(res.Body)
-		if err != nil {
-			return err
-		}
-		cache.Set(url, body)
-	}
-
-	return json.Unmarshal(body, v)
-}
 
 func CommandMap([]string) error {
-	jsonData := Response{}
+	jsonData := response{}
 	err := fetchJSON(currentLocationAreasURL, &jsonData)
 	if err != nil {
 		return err
@@ -62,10 +27,10 @@ func CommandMap([]string) error {
 
 func CommandMapb([]string) error {
 	if previousLocationAreasURL == nil {
-		return errors.New("There are no previous map locations")
+		return errors.New("there are no previous map locations")
 	}
 
-	jsonData := Response{}
+	jsonData := response{}
 	err := fetchJSON(*previousLocationAreasURL, &jsonData)
 	if err != nil {
 		return err
@@ -79,4 +44,27 @@ func CommandMapb([]string) error {
 	}
 
 	return nil
+}
+
+func CommandExplore(args []string) error {
+	argsLength := len(args)
+	switch {
+	case argsLength == 0:
+		return errors.New("you didn't specify a location. Usage: explore [location-area]")
+	case argsLength == 1:
+		locationArea := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s", args[0])
+		jsonData := locationResponse{}
+		err := fetchJSON(locationArea, &jsonData)
+		if err != nil {
+			return err
+		}
+
+		for _, encounter := range jsonData.PokemonEncounters {
+			fmt.Println(encounter.Pokemon.Name)
+		}
+
+		return nil
+	default:
+		return errors.New("incorrect usage. Example: explore [location-area]")
+	} 
 }
